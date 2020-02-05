@@ -2,12 +2,13 @@ import sys
 import argparse
 from yolo import YOLO, detect_video
 from PIL import Image
-
+# import cv2
 def detect_img(yolo):
     while True:
         img = input('Input image filename:')
         try:
             image = Image.open(img)
+            # image =  cv2.imread(img)
         except:
             print('Open Error! Try again!')
             continue
