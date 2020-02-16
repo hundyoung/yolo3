@@ -6,6 +6,7 @@ Class definition of YOLO_v3 style detection model on image and video
 import colorsys
 import os
 from timeit import default_timer as timer
+import tensorflow as tf
 
 import numpy as np
 from keras import backend as K
@@ -42,6 +43,7 @@ class YOLO(object):
         self.class_names = self._get_class()
         self.anchors = self._get_anchors()
         self.sess = K.get_session()
+        self.sess = tf.InteractiveSession()
         self.boxes, self.scores, self.classes = self.generate()
 
     def _get_class(self):
@@ -123,7 +125,8 @@ class YOLO(object):
                 self.input_image_shape: [image.size[1], image.size[0]],
                 K.learning_phase(): 0
             })
-
+        prediction = self.yolo_model.predict(image_data)
+        print(prediction)
         print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
 
         font = ImageFont.truetype(font='font/FiraMono-Medium.otf',
@@ -209,4 +212,5 @@ def detect_video(yolo, video_path, output_path=""):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     yolo.close_session()
+
 
