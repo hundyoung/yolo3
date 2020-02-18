@@ -136,7 +136,7 @@ class YOLO(object):
                                   size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
         thickness = (image.size[0] + image.size[1]) // 300
 
-        for top,left,bottom,right,box_class_scores,box_classes in boxes:
+        for top,left,bottom,right,box_classes,box_class_scores in boxes:
             box_classes=int(box_classes)
             predicted_class = self.class_names[box_classes]
             top = max(0, np.floor(top + 0.5).astype('int32'))
@@ -309,7 +309,7 @@ class YOLO(object):
             scores = box_scores_list[:,c]
             # scores = np.reshape(np.shape(boxes_list)[0],1)
             boxes_class = np.insert(boxes_list,4, c,1)
-            boxes_class = np.insert(boxes_class,4, scores,1)
+            boxes_class = np.insert(boxes_class,5, scores,1)
             mask = scores>self.confThreshold
             boxes_class = boxes_class[mask]
             if len(boxes_class)>0:
