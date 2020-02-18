@@ -7,7 +7,7 @@ from keras import backend as K
 from keras.models import load_model
 from keras.layers import Input
 from PIL import Image, ImageFont, ImageDraw
-from yolo3.model import yolo_eval, yolo_body, tiny_yolo_body
+from yolo3.model import yolo_eval, yolo_body, tiny_yolo_body,box_iou
 from yolo3.utils import letterbox_image
 import os
 from keras.utils import multi_gpu_model
@@ -136,8 +136,8 @@ class YOLO(object):
                                   size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
         thickness = (image.size[0] + image.size[1]) // 300
 
-        for top,left,bottom,right,box_classes,box_class_scores in boxes:
-
+        for top,left,bottom,right,box_class_scores,box_classes in boxes:
+            box_classes=int(box_classes)
             predicted_class = self.class_names[box_classes]
             top = max(0, np.floor(top + 0.5).astype('int32'))
             left = max(0, np.floor(left + 0.5).astype('int32'))
@@ -238,6 +238,8 @@ class YOLO(object):
         # Reshape to batch, height, width, num_anchors, box_params.
         anchor_mask = [[6, 7, 8], [3, 4, 5], [0, 1, 2]]
         result = []
+        boxes_list = []
+        box_scores_list = []
         for l in range(len(feats)):
             anchor = anchors[anchor_mask[l]]
             anchors_tensor = np.reshape(anchor, [1, 1, 1, len(anchor), 2])
@@ -292,25 +294,57 @@ class YOLO(object):
                 box_maxes[..., 0:1],  # y_max
                 box_maxes[..., 1:2]  # x_max
             ),axis=-1)
-            # result.append()
             # Scale boxes back to original image shape.
             boxes = np.multiply(boxes, np.concatenate((image_shape, image_shape)))
-            # boxes = np.reshape(boxes, [-1, 4])
             box_scores = np.multiply(box_confidence,box_class_probs)
-            # box_scores = np.reshape(box_scores, [-1, num_classes])
-            boxes_class = np.concatenate((boxes,box_scores),axis=-1)[0]
-            # np.reshape(boxes_class,)
-            for i in range(len(boxes_class)):
-                grid_y_list = boxes_class[i]
-                for j in range(len(grid_y_list)):
-                    grid = grid_y_list[j]
-                    for k in range(len(grid)):
-                        box = grid[k]
-                        for m in range(4,len(box)):
-                            probability = box[m]
-                            if probability>self.confThreshold:
-                                result.append((box[0],box[1],box[2],box[3],m-4,probability))
-            # result.append(boxes)
+            #NMS
+
+            boxes = np.reshape(boxes, [-1, 4])
+            box_scores = np.reshape(box_scores, [-1, num_classes])
+            boxes_list.append(boxes)
+            box_scores_list.append(box_scores)
+        boxes_list = np.concatenate(boxes_list, axis=0)
+        box_scores_list = np.concatenate(box_scores_list, axis=0)
+        for c in range(num_classes):
+            scores = box_scores_list[:,c]
+            # scores = np.reshape(np.shape(boxes_list)[0],1)
+            boxes_class = np.insert(boxes_list,4, c,1)
+            boxes_class = np.insert(boxes_class,4, scores,1)
+            mask = scores>self.confThreshold
+            boxes_class = boxes_class[mask]
+            if len(boxes_class)>0:
+                boxes_class=sorted(boxes_class,key=lambda x:x[-1],reverse=True)
+                iou_list = np.array(boxes_class)
+                # candidate_box = boxes_class[0]
+                # iou_list = []
+                # result.append(candidate_box)
+                while len(iou_list)>0:
+                    candidate_box= iou_list[0]
+                    result.append(candidate_box)
+                    if len(iou_list)==1:
+                        break
+                    iou_list = iou_list[1:]
+                    b1 = K.variable(value=iou_list[:,:4])
+                    b2 = K.variable(value=candidate_box[:4])
+                    iou = K.eval(box_iou(b1,b2))
+                    iou_mask = iou<=self.iou
+                    iou_mask =np.concatenate(iou_mask,axis=0)
+                    iou_list = iou_list[iou_mask]
+        # return result
+
+
+            #Without nms
+            # boxes_class = np.concatenate((boxes,box_scores),axis=-1)[0]
+            # for i in range(len(boxes_class)):
+            #     grid_y_list = boxes_class[i]
+            #     for j in range(len(grid_y_list)):
+            #         grid = grid_y_list[j]
+            #         for k in range(len(grid)):
+            #             box = grid[k]
+            #             for m in range(4,len(box)):
+            #                 probability = box[m]
+            #                 if probability>self.confThreshold:
+            #                     result.append((box[0],box[1],box[2],box[3],m-4,probability))
         return result
 
         # if calc_loss == True:
@@ -318,7 +352,7 @@ class YOLO(object):
         # return box_xy, box_wh, box_confidence, box_class_probs
 
 
-img = 'G:\GitProject\yolo3\TestData\\bird.jpg'
+img = '.\TestData\\bird.jpg'
 image = Image.open(img)
 yolo = YOLO()
 r_image = yolo.detect_image(image)
