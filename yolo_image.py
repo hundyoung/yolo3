@@ -36,7 +36,7 @@ class YOLO(object):
         self.class_names = self._get_class()
         self.anchors = self._get_anchors()
         self.sess = K.get_session()
-        self.boxes, self.scores, self.classes = self.generate()
+        self.generate()
         # Initialize the parameters
         self.confThreshold = 0.5  # Confidence threshold
         self.nmsThreshold = 0.4  # Non-maximum suppression threshold
@@ -155,7 +155,6 @@ class YOLO(object):
 
     def postProcess(self,feats,anchors, num_classes, image_shape):
         """Convert final layer features to bounding box parameters."""
-        # num_anchors = len(anchors)
         # Reshape to batch, height, width, num_anchors, box_params.
         anchor_mask = [[6, 7, 8], [3, 4, 5], [0, 1, 2]]
         result = []
@@ -260,7 +259,7 @@ class YOLO(object):
         return result
 
 if __name__ == '__main__':
-    img = '.\TestData\\bird.jpg'
+    img = '.\TestData\\soccer_foul.jpg'
     image = Image.open(img)
     yolo = YOLO()
     r_image = yolo.detect_image(image)
