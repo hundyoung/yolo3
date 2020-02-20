@@ -1,7 +1,8 @@
 # keras-yolo3
 
 
-###### Introduction
+# Introduction
+---
 
 A Keras implementation of YOLOv3 (Tensorflow backend and Numpy) inspired by the following people:
 [allanzelener/YAD2K](https://github.com/allanzelener/YAD2K).
@@ -18,7 +19,6 @@ If you want to debug and see how the YOLOv3 works, please debug my work yolo_ima
 
 
 The following section is the same as [qqwweee/keras-yolo3](https://github.com/qqwweee/keras-yolo3):
----
 
 ## Quick Start
 
@@ -110,4 +110,4 @@ If you want to use original pretrained weights for YOLOv3:
 7. For speeding up the training process with frozen layers train_bottleneck.py can be used. It will compute the bottleneck features of the frozen model first and then only trains the last layers. This makes training on CPU possible in a reasonable time. See [this](https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html) for more information on bottleneck features.
 
 
-[]: https://github.com/qqwweee/keras-yolo3
+[hundyoung/yolo3_keras](https://github.com/hundyoung/yolo3_keras)
