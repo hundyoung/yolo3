@@ -5,10 +5,12 @@ import re
 from bs4 import BeautifulSoup
 import json
 
+# save_path = "./foul/"
 
-save_path = "./foul/"
+save_path = "./non_foul/"
 url="https://images.api.press.net/api/v2/search/?category=A,S,E&ck=public&cond=not&crhPriority=1&fields_0=all&fields_1=all&imagesonly=1&limit=2000&orientation=both&page=1&q=football+foul&words_0=all&words_1=all"
-response = requests.get(url)
+non_foul_url=" https://images.api.press.net/api/v2/search/?category=A,S,E&ck=public&cond=not&crhPriority=1&fields_0=all&fields_1=all&imagesonly=1&limit=2000&orientation=both&page=2&q=soccer&text=soccer&timestamp=1582204096&totalresults=2483919&words_0=all&words_1=all"
+response = requests.get(non_foul_url)
 print(response.text)
 json = json.loads(response.text)
 resultList = json["results"]

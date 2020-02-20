@@ -1,12 +1,23 @@
 # keras-yolo3
 
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 
 ## Introduction
 
-A Keras implementation of YOLOv3 (Tensorflow backend) inspired by [allanzelener/YAD2K](https://github.com/allanzelener/YAD2K).
+A Keras implementation of YOLOv3 (Tensorflow backend and Numpy) inspired by the following people:
+[allanzelener/YAD2K](https://github.com/allanzelener/YAD2K).
+qqwweee(https://github.com/qqwweee/keras-yolo3)
+
+Based on their hard work, I implemented the Object Detection on images with Keras backend and Numpy, which is in yolo_image.
+It is also possible to use Keras backend only by changing the Numpy to Keras and puting the values into K.eval()
+
+The reason why I do this that qqwweee(https://github.com/qqwweee/keras-yolo3)'s project actually use tensorflow library as well, which will is not the same as what it is described.
+Moreover, by implementing the YOLOv3, I have a good understanding to it.
+
+However, appreciate for their hard work again.
+If you want to debug and see how the YOLOv3 works, please debug my work yolo_image.py
 
 
+The following section is the same as qqwweee(https://github.com/qqwweee/keras-yolo3) 
 ---
 
 ## Quick Start
@@ -81,10 +92,10 @@ If you want to use original pretrained weights for YOLOv3:
 
 ## Some issues to know
 
-1. The test environment is
-    - Python 3.5.2
-    - Keras 2.1.5
-    - tensorflow 1.6.0
+1. The test environment is(My version)
+    - Python 3.5.2(3.6 and above)
+    - Keras 2.1.5(2.2.4)
+    - tensorflow 1.6.0(No Tensorflow in my version)
 
 2. Default anchors are used. If you use your own anchors, probably some changes are needed.
 
